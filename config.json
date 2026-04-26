@@ -1,0 +1,31 @@
+{
+  "discovery": {
+    "source_filename": "CLAUDE.md",
+    "target_filename": "AGENTS.md",
+    "root_target_filenames": [
+      "AGENTS.md",
+      ".agents/AGENTS.md"
+    ],
+    "root_source_candidates": [
+      "CLAUDE.md",
+      ".claude/CLAUDE.md"
+    ],
+    "skip_dirs": [
+      ".git",
+      "node_modules"
+    ]
+  },
+  "directory_links": [
+    {
+      "source_root": ".claude/skills",
+      "target_root": ".agents/skills",
+      "marker_file": "SKILL.md"
+    }
+  ],
+  "gemini": {
+    "context_file_names": [
+      "AGENTS.md",
+      "GEMINI.md"
+    ]
+  }
+}
