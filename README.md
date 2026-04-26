@@ -72,6 +72,74 @@ python3 sync_mcp.py --repo-root /path/to/repo --dry-run
 By default, the scripts read `config.json` next to the script. You can pass
 `--config path/to/config.json` to override discovery and generator settings.
 
+## Config
+
+`config.json` describes what repository-owned context should be discovered and
+where Declaude Context Sync should project it.
+
+The default file has three sections:
+
+- `discovery`: filename-based context discovery for `sync_context.py`
+- `directory_links`: directory symlink rules for `sync_context.py`
+- `gemini`: Gemini-specific generated settings for `sync_mcp.py`
+
+Default config:
+
+```json
+{
+  "discovery": {
+    "source_filename": "CLAUDE.md",
+    "target_filename": "AGENTS.md",
+    "root_target_filenames": [
+      "AGENTS.md",
+      ".agents/AGENTS.md"
+    ],
+    "root_source_candidates": [
+      "CLAUDE.md",
+      ".claude/CLAUDE.md"
+    ],
+    "skip_dirs": [
+      ".git",
+      "node_modules"
+    ]
+  },
+  "directory_links": [
+    {
+      "source_root": ".claude/skills",
+      "target_root": ".agents/skills",
+      "marker_file": "SKILL.md"
+    }
+  ],
+  "gemini": {
+    "context_file_names": [
+      "AGENTS.md",
+      "GEMINI.md"
+    ]
+  }
+}
+```
+
+Field guide:
+
+- `discovery.source_filename`: filename to search for under `--repo-root`
+- `discovery.target_filename`: sibling filename to create next to nested source
+  files
+- `discovery.root_target_filenames`: target files to create from the first root
+  source candidate that exists
+- `discovery.root_source_candidates`: ordered root-level source candidates
+- `discovery.skip_dirs`: directory names ignored during recursive discovery
+- `directory_links[].source_root`: source directory to scan under `--repo-root`
+- `directory_links[].target_root`: target directory where matching children are
+  linked
+- `directory_links[].marker_file`: file required inside a child directory before
+  it is linked
+- `gemini.context_file_names`: values written to generated Gemini
+  `context.fileName`
+
+`config.json` does not define MCP servers. `sync_mcp.py` reads MCP servers from
+the target repository's `.mcp.json`, then projects them into `.gemini` and
+`.codex` config files.
+
 ## Discovery model
 
 The default config uses these rules:
