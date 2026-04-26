@@ -69,15 +69,63 @@ MCP config projection:
 python3 sync_mcp.py --repo-root /path/to/repo --dry-run
 ```
 
-By default, the scripts read `config.json` next to the script. You can pass
-`--config path/to/config.json` to override discovery and generator settings.
+For most Claude Code repositories, no config changes are needed. The bundled
+defaults cover the common `CLAUDE.md` to `AGENTS.md`, `.claude/skills` to
+`.agents/skills`, and `.mcp.json` projection workflow.
+
+## Discovery model
+
+The default config uses these rules:
+
+- project root source candidate order: `CLAUDE.md`, then `.claude/CLAUDE.md`
+- project root targets: `AGENTS.md` and `.agents/AGENTS.md`
+- nested source filename: `CLAUDE.md`
+- target filename: `AGENTS.md`
+- skipped directories: `.git`, `node_modules`
+
+That means a repository with:
+
+```text
+.claude/CLAUDE.md
+backend/CLAUDE.md
+frontend/CLAUDE.md
+```
+
+will produce:
+
+```text
+AGENTS.md -> .claude/CLAUDE.md
+.agents/AGENTS.md -> ../.claude/CLAUDE.md
+backend/AGENTS.md -> CLAUDE.md
+frontend/AGENTS.md -> CLAUDE.md
+```
+
+And skill directories like:
+
+```text
+.claude/skills/code-review/SKILL.md
+.claude/skills/qa/SKILL.md
+```
+
+will produce:
+
+```text
+.agents/skills/code-review -> ../../.claude/skills/code-review
+.agents/skills/qa -> ../../.claude/skills/qa
+```
+
+`--dry-run` is the safest way to inspect the inferred mapping set before writing
+symlinks.
 
 ## Config
+
+Config is optional for normal use. Pass `--config path/to/config.json` only when
+you need to override the bundled defaults.
 
 `config.json` describes what repository-owned context should be discovered and
 where Declaude Context Sync should project it.
 
-The default file has three sections:
+The config has three sections:
 
 - `discovery`: filename-based context discovery for `sync_context.py`
 - `directory_links`: directory symlink rules for `sync_context.py`
@@ -139,47 +187,3 @@ Field guide:
 `config.json` does not define MCP servers. `sync_mcp.py` reads MCP servers from
 the target repository's `.mcp.json`, then projects them into `.gemini` and
 `.codex` config files.
-
-## Discovery model
-
-The default config uses these rules:
-
-- project root source candidate order: `CLAUDE.md`, then `.claude/CLAUDE.md`
-- project root targets: `AGENTS.md` and `.agents/AGENTS.md`
-- nested source filename: `CLAUDE.md`
-- target filename: `AGENTS.md`
-- skipped directories: `.git`, `node_modules`
-
-That means a repository with:
-
-```text
-.claude/CLAUDE.md
-backend/CLAUDE.md
-frontend/CLAUDE.md
-```
-
-will produce:
-
-```text
-AGENTS.md -> .claude/CLAUDE.md
-.agents/AGENTS.md -> ../.claude/CLAUDE.md
-backend/AGENTS.md -> CLAUDE.md
-frontend/AGENTS.md -> CLAUDE.md
-```
-
-And skill directories like:
-
-```text
-.claude/skills/code-review/SKILL.md
-.claude/skills/qa/SKILL.md
-```
-
-will produce:
-
-```text
-.agents/skills/code-review -> ../../.claude/skills/code-review
-.agents/skills/qa -> ../../.claude/skills/qa
-```
-
-`--dry-run` is the safest way to inspect the inferred mapping set before writing
-symlinks.
