@@ -3,20 +3,45 @@
 Sync Claude-style context files, skills, and MCP config into agent-friendly
 layouts for Codex, Gemini, and other tools.
 
-## Current scope
+## Supports
 
-The first supported operation is discovery-based symlinking. The tool finds a
-source context format, then exposes a compatible target filename for another
-tool.
+Declaude Context Sync currently focuses on repository-owned context that can be
+safely projected with symlinks or generated config files.
 
-Today the default config mirrors:
+- Project instructions: mirrors the project-level `CLAUDE.md` into root
+  `AGENTS.md` and `.agents/AGENTS.md`
+- Nested instructions: mirrors nested `*/CLAUDE.md` files into sibling
+  `*/AGENTS.md` files
+- Skills: links `.claude/skills/*` directories into `.agents/skills/*`
+- MCP config: projects `.mcp.json` into generated Gemini and Codex MCP configs
+- Gemini context names: defaults Gemini context loading to `AGENTS.md` and
+  `GEMINI.md`
 
-- the project-level `CLAUDE.md` into root `AGENTS.md`
-- the project-level `CLAUDE.md` into `.agents/AGENTS.md`
-- nested `*/CLAUDE.md` files into sibling `*/AGENTS.md` files
-- `.claude/skills/*` directories into `.agents/skills/*`
-- `.mcp.json` into generated Gemini and Codex MCP configs; Gemini context
-  filenames default to `AGENTS.md` and `GEMINI.md`
+## Limitations
+
+- Claude auto memory is not synced.
+- Claude hooks are not converted.
+- User-level and managed Claude configuration is not read.
+- `@path` imports inside `CLAUDE.md` are not expanded.
+- `.claude/rules/`, `.claude/commands/`, `.claude/agents/`, output styles,
+  plugins, permissions, and general `.claude/settings*.json` settings are not
+  projected today.
+
+Those omissions are intentional. Claude stores some context outside the
+repository, such as user settings, managed policy, and machine-local auto memory.
+Hooks can run shell commands or agent checks, so translating them across tools
+would require security and behavior decisions this project should not make
+silently. Declaude Context Sync keeps the first version narrow: expose
+repository-authored instructions, skills, and MCP config without pretending every
+Claude Code feature has an equivalent in every agent CLI.
+
+Relevant Claude Code docs:
+
+- [Memory](https://code.claude.com/docs/en/memory)
+- [Hooks](https://code.claude.com/docs/en/hooks)
+- [Settings](https://code.claude.com/docs/en/settings)
+- [Skills and commands](https://code.claude.com/docs/en/slash-commands)
+- [Subagents](https://code.claude.com/docs/en/sub-agents)
 
 ## Usage
 
